@@ -60,14 +60,20 @@ test("region counts match expected totals (UK: 19, Europe: 22, UK & Europe: 7, I
   assert.deepEqual(regionCounts, { UK: 19, Europe: 22, "UK & Europe": 7, International: 12 });
 });
 
-test("every operator has exact 11 required keys with no missing or extra keys", () => {
-  const expected = [...REQUIRED_KEYS].sort();
+const OPTIONAL_KEYS = ["logoUrl"];
+
+test("every operator has all 11 required keys and only allowed optional keys", () => {
+  const allowed = new Set([...REQUIRED_KEYS, ...OPTIONAL_KEYS]);
   for (const op of operators) {
     assert.equal(typeof op, "object");
     assert.notEqual(op, null);
     assert.ok(!Array.isArray(op));
-    const actual = Object.keys(op).sort();
-    assert.deepEqual(actual, expected, `Key mismatch for operator "${op.id || op.name}"`);
+    for (const key of REQUIRED_KEYS) {
+      assert.ok(Object.prototype.hasOwnProperty.call(op, key), `Missing ${key} on "${op.id || op.name}"`);
+    }
+    for (const key of Object.keys(op)) {
+      assert.ok(allowed.has(key), `Unexpected extra key "${key}" on "${op.id || op.name}"`);
+    }
   }
 });
 
@@ -97,7 +103,7 @@ test("id, name, and claimUrl are each unique across all 60 operators", () => {
   assert.equal(urls.size, 60, "Duplicate operator claimUrl detected");
 });
 
-test("every claimUrl is a valid https:// URL with a non-empty hostname", () => {
+test("every claimUrl and optional logoUrl is a valid https:// URL with a non-empty hostname", () => {
   for (const op of operators) {
     let parsed;
     assert.doesNotThrow(() => {
@@ -105,5 +111,16 @@ test("every claimUrl is a valid https:// URL with a non-empty hostname", () => {
     }, `Invalid URL for ${op.id}: ${op.claimUrl}`);
     assert.equal(parsed.protocol, "https:", `${op.id}.claimUrl must use https:`);
     assert.ok(parsed.hostname.length > 0, `${op.id}.claimUrl must have a non-empty hostname`);
+
+    if (op.logoUrl !== undefined) {
+      assert.equal(typeof op.logoUrl, "string", `${op.id}.logoUrl must be a string`);
+      assert.equal(op.logoUrl.trim(), op.logoUrl, `${op.id}.logoUrl must have no leading/trailing whitespace`);
+      let parsedLogo;
+      assert.doesNotThrow(() => {
+        parsedLogo = new URL(op.logoUrl);
+      }, `Invalid logoUrl for ${op.id}: ${op.logoUrl}`);
+      assert.equal(parsedLogo.protocol, "https:", `${op.id}.logoUrl must use https:`);
+      assert.ok(parsedLogo.hostname.length > 0, `${op.id}.logoUrl must have a non-empty hostname`);
+    }
   }
 });

@@ -234,6 +234,17 @@ function getFilteredOperators() {
   return list;
 }
 
+function renderOperatorLogo(op) {
+  if (typeof op.logoUrl !== "string" || op.logoUrl.trim() === "") {
+    return "";
+  }
+  const safeLogoUrl = sanitizeClaimUrl(op.logoUrl);
+  if (safeLogoUrl === "#") {
+    return "";
+  }
+  return `<img class="operator-logo" src="${escapeAttr(safeLogoUrl)}" alt="" loading="lazy" decoding="async" />`;
+}
+
 function renderCards(filtered) {
   elements.grid.innerHTML = filtered
     .map((op) => {
@@ -252,6 +263,7 @@ function renderCards(filtered) {
 
       const domain = getHostname(op.claimUrl);
       const safeUrl = sanitizeClaimUrl(op.claimUrl);
+      const logoHtml = renderOperatorLogo(op);
 
       return `
         <article class="${cardClass}" data-id="${escapeAttr(op.id)}">
@@ -264,7 +276,10 @@ function renderCards(filtered) {
           </div>
 
           <div class="card-title-block">
-            <h3>${escapeHtml(op.name)}</h3>
+            <div class="card-title-row">
+              ${logoHtml}
+              <h3>${escapeHtml(op.name)}</h3>
+            </div>
             <div class="scheme-row">
               <p class="scheme-text">${escapeHtml(op.scheme)}</p>
               <span class="domain-pill">${escapeHtml(domain)}</span>
@@ -323,12 +338,18 @@ function renderTable(filtered) {
           : "";
 
       const safeUrl = sanitizeClaimUrl(op.claimUrl);
+      const logoHtml = renderOperatorLogo(op);
 
       return `
         <tr class="${rowClass}">
           <td>
-            <div class="table-op-name">${escapeHtml(op.name)}</div>
-            <div class="table-op-scheme">${escapeHtml(op.scheme)}</div>
+            <div class="table-op-row">
+              ${logoHtml}
+              <div>
+                <div class="table-op-name">${escapeHtml(op.name)}</div>
+                <div class="table-op-scheme">${escapeHtml(op.scheme)}</div>
+              </div>
+            </div>
           </td>
           <td><span class="mode-badge mode-${escapeAttr(op.mode)}">${escapeHtml(MODE_LABELS[op.mode] || op.mode)}</span></td>
           <td>${escapeHtml(op.country)}</td>
@@ -544,6 +565,14 @@ function bindEvents() {
       showToast(`URL: ${url}`);
     }
   });
+
+  const hideBrokenLogo = (e) => {
+    if (e.target && e.target.classList && e.target.classList.contains("operator-logo")) {
+      e.target.hidden = true;
+    }
+  };
+  elements.grid.addEventListener("error", hideBrokenLogo, true);
+  elements.tableBody.addEventListener("error", hideBrokenLogo, true);
 }
 
 async function init() {
