@@ -189,7 +189,7 @@ async function launchBrowser() {
       let stderrBuf = "";
       const timer = setTimeout(() => {
         reject(new Error(`Timed out waiting for Chromium DevTools URL. stderr:\n${stderrBuf}`));
-      }, 10000);
+      }, 30000);
 
       chrome.stderr.on("data", (chunk) => {
         stderrBuf += chunk.toString("utf8");
