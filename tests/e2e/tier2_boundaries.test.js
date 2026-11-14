@@ -16,7 +16,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
   });
 
   describe("F1 Boundaries: Load & Render", () => {
-    it("F1.B1 delayed /data/operators.json (250ms) transitions cleanly from loading text to 48 operators", async () => {
+    it("F1.B1 delayed /data/operators.json (250ms) transitions cleanly from loading text to 60 operators", async () => {
       const jsonBody = fs.readFileSync(path.join(ROOT_DIR, "data/operators.json"), "utf8");
       await withTestContext(
         browser,
@@ -31,17 +31,17 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
           },
         },
         async ({ page }) => {
-          assert.equal(await page.count(".operator-card"), 48);
+          assert.equal(await page.count(".operator-card"), 60);
           assert.equal(
             await page.text("#header-stats"),
-            "48 verified operators · 20 train · 18 flight · 10 bus & coach"
+            "60 verified operators · 20 train · 30 flight · 10 bus & coach"
           );
           assert.deepEqual(page.exceptions, []);
         }
       );
     });
 
-    it("F1.B2 missing styles.css (HTTP 404) does not crash app.js or prevent rendering 48 cards", async () => {
+    it("F1.B2 missing styles.css (HTTP 404) does not crash app.js or prevent rendering 60 cards", async () => {
       await withTestContext(
         browser,
         {
@@ -54,7 +54,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
           },
         },
         async ({ page }) => {
-          assert.equal(await page.count(".operator-card"), 48);
+          assert.equal(await page.count(".operator-card"), 60);
           assert.deepEqual(page.exceptions, []);
         }
       );
@@ -68,13 +68,13 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
       });
     });
 
-    it("F1.B4 zero duplicate data-id attributes across all 48 rendered operator cards", async () => {
+    it("F1.B4 zero duplicate data-id attributes across all 60 rendered operator cards", async () => {
       await withTestContext(browser, async ({ page }) => {
         const ids = await page.evaluate(
           'Array.from(document.querySelectorAll(".operator-card")).map(c => c.getAttribute("data-id"))'
         );
-        assert.equal(ids.length, 48);
-        assert.equal(new Set(ids).size, 48);
+        assert.equal(ids.length, 60);
+        assert.equal(new Set(ids).size, 60);
       });
     });
 
@@ -123,7 +123,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
         await page.click("#tab-flight");
         await page.click("#tab-bus");
         await page.click("#tab-all");
-        assert.equal(await page.count(".operator-card"), 48);
+        assert.equal(await page.count(".operator-card"), 60);
         assert.equal(await page.hasClass("#tab-all", "active"), true);
       });
     });
@@ -140,7 +140,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
     it("F2.B3 keyboard activation (Enter and Space) on .mode-tab switches tabs", async () => {
       await withTestContext(browser, async ({ page }) => {
         await page.pressKey("#tab-flight", "Enter");
-        assert.equal(await page.count(".operator-card"), 18);
+        assert.equal(await page.count(".operator-card"), 30);
         assert.equal(await page.attr("#tab-flight", "aria-selected"), "true");
 
         await page.pressKey("#tab-bus", " ");
@@ -149,14 +149,14 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
       });
     });
 
-    it("F2.B4 tab counts remain invariant (48/20/18/10) regardless of active search/region/delay filters", async () => {
+    it("F2.B4 tab counts remain invariant (60/20/30/10) regardless of active search/region/delay filters", async () => {
       await withTestContext(browser, async ({ page }) => {
         await page.selectOption("#region-filter", "UK");
         await page.setInputValue("#search-input", "LNER");
         await page.click('.preset-btn[data-minutes="60"]');
-        assert.equal(await page.text("#count-all"), "48");
+        assert.equal(await page.text("#count-all"), "60");
         assert.equal(await page.text("#count-train"), "20");
-        assert.equal(await page.text("#count-flight"), "18");
+        assert.equal(await page.text("#count-flight"), "30");
         assert.equal(await page.text("#count-bus"), "10");
       });
     });
@@ -276,7 +276,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
         await page.click("#reset-filters-btn");
         assert.equal(await page.isHidden("#operators-table-wrap"), false);
         assert.equal(await page.isHidden("#operators-grid"), true);
-        assert.equal(await page.count("#operators-table-body tr"), 48);
+        assert.equal(await page.count("#operators-table-body tr"), 60);
       });
     });
   });
@@ -286,7 +286,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.setInputValue("#delay-minutes-input", "0");
         assert.equal(await page.isHidden("#eligibility-summary"), false);
-        assert.ok((await page.text("#eligibility-summary")).includes("0 min delay: 0 of 48 shown operator(s)"));
+        assert.ok((await page.text("#eligibility-summary")).includes("0 min delay: 0 of 60 shown operator(s)"));
       });
     });
 
@@ -294,7 +294,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.setInputValue("#delay-minutes-input", "-10");
         assert.equal(await page.isHidden("#eligibility-summary"), false);
-        assert.ok((await page.text("#eligibility-summary")).includes("0 min delay: 0 of 48 shown operator(s)"));
+        assert.ok((await page.text("#eligibility-summary")).includes("0 min delay: 0 of 60 shown operator(s)"));
       });
     });
 
@@ -310,7 +310,7 @@ describe("Tier 2: Boundary & Corner Cases (F1–F8)", () => {
           [119, 24],
           [120, 30],
           [179, 30],
-          [180, 48],
+          [180, 60],
         ];
         for (const [mins, expected] of pairs) {
           await page.setInputValue("#delay-minutes-input", String(mins));

@@ -300,12 +300,12 @@ describe("Tier 5: Adversarial E2E Security, Resilience & Accessibility", () => {
       await pressNavKey(page, "#tab-bus", "ArrowLeft");
       assert.equal(await page.evaluate("document.activeElement?.id"), "tab-flight");
       assert.equal(await page.attr("#tab-flight", "aria-selected"), "true");
-      assert.equal(await page.count(".operator-card"), 18);
+      assert.equal(await page.count(".operator-card"), 30);
 
       await pressNavKey(page, "#tab-flight", "Home");
       assert.equal(await page.evaluate("document.activeElement?.id"), "tab-all");
       assert.equal(await page.attr("#tab-all", "aria-selected"), "true");
-      assert.equal(await page.count(".operator-card"), 48);
+      assert.equal(await page.count(".operator-card"), 60);
 
       assert.deepEqual(page.exceptions, []);
     });

@@ -36,21 +36,21 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       }
     });
 
-    it("F1.2 renders 48 operator cards on initial load with zero local network or JS errors", async () => {
+    it("F1.2 renders 60 operator cards on initial load with zero local network or JS errors", async () => {
       await withTestContext(browser, async ({ page }) => {
-        assert.equal(await page.count(".operator-card"), 48);
-        assert.equal(await page.text("#results-count"), "Showing 48 of 48 operators");
+        assert.equal(await page.count(".operator-card"), 60);
+        assert.equal(await page.text("#results-count"), "Showing 60 of 60 operators");
         assert.deepEqual(page.exceptions, []);
         assert.deepEqual(page.consoleErrors, []);
         assert.deepEqual(page.localNetworkErrors, []);
       });
     });
 
-    it("F1.3 populates transport mode tab counts accurately (48 all, 20 train, 18 flight, 10 bus)", async () => {
+    it("F1.3 populates transport mode tab counts accurately (60 all, 20 train, 30 flight, 10 bus)", async () => {
       await withTestContext(browser, async ({ page }) => {
-        assert.equal(await page.text("#count-all"), "48");
+        assert.equal(await page.text("#count-all"), "60");
         assert.equal(await page.text("#count-train"), "20");
-        assert.equal(await page.text("#count-flight"), "18");
+        assert.equal(await page.text("#count-flight"), "30");
         assert.equal(await page.text("#count-bus"), "10");
       });
     });
@@ -59,7 +59,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         assert.equal(
           await page.text("#header-stats"),
-          "48 verified operators · 20 train · 18 flight · 10 bus & coach"
+          "60 verified operators · 20 train · 30 flight · 10 bus & coach"
         );
       });
     });
@@ -86,7 +86,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.click("#tab-train");
         assert.equal(await page.count(".operator-card"), 20);
-        assert.equal(await page.text("#results-count"), "Showing 20 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 20 of 60 operators");
         assert.equal(await page.attr("#tab-train", "aria-selected"), "true");
         assert.equal(await page.hasClass("#tab-train", "active"), true);
         assert.equal(await page.attr("#tab-all", "aria-selected"), "false");
@@ -96,11 +96,11 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       });
     });
 
-    it("F2.2 clicking #tab-flight filters to 18 flight cards", async () => {
+    it("F2.2 clicking #tab-flight filters to 30 flight cards", async () => {
       await withTestContext(browser, async ({ page }) => {
         await page.click("#tab-flight");
-        assert.equal(await page.count(".operator-card"), 18);
-        assert.equal(await page.text("#results-count"), "Showing 18 of 48 operators");
+        assert.equal(await page.count(".operator-card"), 30);
+        assert.equal(await page.text("#results-count"), "Showing 30 of 60 operators");
         const badges = await page.texts(".operator-card .mode-badge");
         assert.ok(badges.every((b) => b === "Flight"));
       });
@@ -110,39 +110,39 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.click("#tab-bus");
         assert.equal(await page.count(".operator-card"), 10);
-        assert.equal(await page.text("#results-count"), "Showing 10 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 10 of 60 operators");
         const badges = await page.texts(".operator-card .mode-bus");
         assert.equal(badges.length, 10);
         assert.ok(badges.every((b) => b === "Bus & Coach"));
       });
     });
 
-    it("F2.4 clicking #tab-all restores all 48 operators after filtering", async () => {
+    it("F2.4 clicking #tab-all restores all 60 operators after filtering", async () => {
       await withTestContext(browser, async ({ page }) => {
         await page.click("#tab-bus");
         assert.equal(await page.count(".operator-card"), 10);
         await page.click("#tab-all");
-        assert.equal(await page.count(".operator-card"), 48);
-        assert.equal(await page.text("#results-count"), "Showing 48 of 48 operators");
+        assert.equal(await page.count(".operator-card"), 60);
+        assert.equal(await page.text("#results-count"), "Showing 60 of 60 operators");
       });
     });
 
     it("F2.5 switching mode tabs in Table view updates #operators-table-body row counts", async () => {
       await withTestContext(browser, async ({ page }) => {
         await page.click("#view-table-btn");
-        assert.equal(await page.count("#operators-table-body tr"), 48);
+        assert.equal(await page.count("#operators-table-body tr"), 60);
 
         await page.click("#tab-train");
         assert.equal(await page.count("#operators-table-body tr"), 20);
 
         await page.click("#tab-flight");
-        assert.equal(await page.count("#operators-table-body tr"), 18);
+        assert.equal(await page.count("#operators-table-body tr"), 30);
 
         await page.click("#tab-bus");
         assert.equal(await page.count("#operators-table-body tr"), 10);
 
         await page.click("#tab-all");
-        assert.equal(await page.count("#operators-table-body tr"), 48);
+        assert.equal(await page.count("#operators-table-body tr"), 60);
       });
     });
   });
@@ -152,7 +152,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.selectOption("#region-filter", "UK");
         assert.equal(await page.count(".operator-card"), 26);
-        assert.equal(await page.text("#results-count"), "Showing 26 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 26 of 60 operators");
       });
     });
 
@@ -160,7 +160,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.selectOption("#region-filter", "Europe");
         assert.equal(await page.count(".operator-card"), 29);
-        assert.equal(await page.text("#results-count"), "Showing 29 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 29 of 60 operators");
       });
     });
 
@@ -168,7 +168,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       await withTestContext(browser, async ({ page }) => {
         await page.selectOption("#region-filter", "UK & Europe");
         assert.equal(await page.count(".operator-card"), 7);
-        assert.equal(await page.text("#results-count"), "Showing 7 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 7 of 60 operators");
       });
     });
 
@@ -199,7 +199,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
         assert.equal(await page.isHidden("#operators-grid"), true);
         assert.equal(await page.isHidden("#operators-table-wrap"), true);
         assert.equal(await page.isHidden("#empty-state"), false);
-        assert.equal(await page.text("#results-count"), "Showing 0 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 0 of 60 operators");
       });
     });
   });
@@ -236,9 +236,9 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
         assert.equal(modes[0], "Bus & Coach");
         assert.equal(modes[9], "Bus & Coach");
         assert.equal(modes[10], "Flight");
-        assert.equal(modes[27], "Flight");
-        assert.equal(modes[28], "Train");
-        assert.equal(modes[47], "Train");
+        assert.equal(modes[39], "Flight");
+        assert.equal(modes[40], "Train");
+        assert.equal(modes[59], "Train");
       });
     });
 
@@ -260,7 +260,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
           "Deadline",
           "Claim Portal",
         ]);
-        assert.equal(await page.count("#operators-table-body tr"), 48);
+        assert.equal(await page.count("#operators-table-body tr"), 60);
       });
     });
 
@@ -287,10 +287,10 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
         await page.setInputValue("#delay-minutes-input", "10");
         assert.equal(await page.isHidden("#eligibility-summary"), false);
         const summary = await page.text("#eligibility-summary");
-        assert.ok(summary.includes("10 min delay: 0 of 48 shown operator(s)"));
+        assert.ok(summary.includes("10 min delay: 0 of 60 shown operator(s)"));
         assert.ok(summary.includes("under 15 minutes"));
         assert.equal(await page.count(".operator-card.is-eligible"), 0);
-        assert.equal(await page.count(".operator-card.is-ineligible"), 48);
+        assert.equal(await page.count(".operator-card.is-ineligible"), 60);
       });
     });
 
@@ -301,7 +301,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
           { mins: "30", count: 15 },
           { mins: "60", count: 24 },
           { mins: "120", count: 30 },
-          { mins: "180", count: 48 },
+          { mins: "180", count: 60 },
         ];
         for (const step of expectedEligible) {
           await page.click(`.preset-btn[data-minutes="${step.mins}"]`);
@@ -358,7 +358,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
         await page.setCheckbox("#eligible-only-toggle", true);
         assert.equal(await page.count(".operator-card"), 15);
         assert.equal(await page.count(".operator-card.is-ineligible"), 0);
-        assert.equal(await page.text("#results-count"), "Showing 15 of 48 operators");
+        assert.equal(await page.text("#results-count"), "Showing 15 of 60 operators");
       });
     });
 
@@ -373,7 +373,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
         assert.equal(await page.evaluate('document.querySelector("#ticket-fare-input").value'), "");
         assert.equal(await page.evaluate('document.querySelector("#eligible-only-toggle").checked'), false);
         assert.equal(await page.isHidden("#eligibility-summary"), true);
-        assert.equal(await page.count(".operator-card"), 48);
+        assert.equal(await page.count(".operator-card"), 60);
         assert.equal(await page.count(".operator-card.is-eligible"), 0);
         assert.equal(await page.count(".operator-card.is-ineligible"), 0);
       });
@@ -438,7 +438,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       );
     });
 
-    it("F6.4 clicking #reset-filters-btn from #empty-state restores all 48 operators and resets filters", async () => {
+    it("F6.4 clicking #reset-filters-btn from #empty-state restores all 60 operators and resets filters", async () => {
       await withTestContext(browser, async ({ page }) => {
         await page.click("#tab-bus");
         await page.selectOption("#region-filter", "UK");
@@ -447,7 +447,7 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
 
         await page.click("#reset-filters-btn");
         assert.equal(await page.isHidden("#empty-state"), true);
-        assert.equal(await page.count(".operator-card"), 48);
+        assert.equal(await page.count(".operator-card"), 60);
         assert.equal(await page.hasClass("#tab-all", "active"), true);
         assert.equal(await page.evaluate('document.querySelector("#region-filter").value'), "all");
         assert.equal(await page.evaluate('document.querySelector("#search-input").value'), "");
@@ -480,14 +480,14 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
   });
 
   describe("F7: Dataset & Static Asset Integrity (E2E)", () => {
-    it("F7.1 live-served data/operators.json returns HTTP 200 valid JSON array of 48 operators", async () => {
+    it("F7.1 live-served data/operators.json returns HTTP 200 valid JSON array of 60 operators", async () => {
       const server = await startServer();
       try {
         const res = await fetch(`${server.baseUrl}/data/operators.json`);
         assert.equal(res.status, 200);
         const data = await res.json();
         assert.ok(Array.isArray(data));
-        assert.equal(data.length, 48);
+        assert.equal(data.length, 60);
       } finally {
         await server.close();
       }
@@ -526,9 +526,9 @@ describe("Tier 1: Feature Coverage (F1–F8)", () => {
       try {
         const res = await fetch(`${server.baseUrl}/data/operators.json`);
         const data = await res.json();
-        assert.equal(new Set(data.map((o) => o.id)).size, 48);
-        assert.equal(new Set(data.map((o) => o.name)).size, 48);
-        assert.equal(new Set(data.map((o) => o.claimUrl)).size, 48);
+        assert.equal(new Set(data.map((o) => o.id)).size, 60);
+        assert.equal(new Set(data.map((o) => o.name)).size, 60);
+        assert.equal(new Set(data.map((o) => o.claimUrl)).size, 60);
         assert.ok(data.every((o) => typeof o.claimUrl === "string" && o.claimUrl.startsWith("https://")));
       } finally {
         await server.close();

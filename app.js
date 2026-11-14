@@ -206,6 +206,7 @@ function getFilteredOperators() {
       if (state.region === "UK" && !op.region.includes("UK")) return false;
       if (state.region === "Europe" && !op.region.includes("Europe")) return false;
       if (state.region === "UK & Europe" && op.region !== "UK & Europe") return false;
+      if (state.region === "International" && op.region !== "International") return false;
     }
 
     if (query) {

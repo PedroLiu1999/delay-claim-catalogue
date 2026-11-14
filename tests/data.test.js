@@ -33,31 +33,31 @@ const STRING_KEYS = [
 ];
 
 const VALID_MODES = ["train", "flight", "bus"];
-const VALID_REGIONS = ["UK", "Europe", "UK & Europe"];
+const VALID_REGIONS = ["UK", "Europe", "UK & Europe", "International"];
 
 const operators = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
 
-test("operators.json is an array of 48 operators", () => {
+test("operators.json is an array of 60 operators", () => {
   assert.ok(Array.isArray(operators), "operators.json must export a JSON array");
-  assert.equal(operators.length, 48);
+  assert.equal(operators.length, 60);
 });
 
-test("mode counts match expected totals (train: 20, flight: 18, bus: 10)", () => {
+test("mode counts match expected totals (train: 20, flight: 30, bus: 10)", () => {
   const modeCounts = { train: 0, flight: 0, bus: 0 };
   for (const op of operators) {
     assert.ok(VALID_MODES.includes(op.mode), `Invalid mode "${op.mode}" for ${op.id}`);
     modeCounts[op.mode] += 1;
   }
-  assert.deepEqual(modeCounts, { train: 20, flight: 18, bus: 10 });
+  assert.deepEqual(modeCounts, { train: 20, flight: 30, bus: 10 });
 });
 
-test("region counts match expected totals (UK: 19, Europe: 22, UK & Europe: 7)", () => {
-  const regionCounts = { UK: 0, Europe: 0, "UK & Europe": 0 };
+test("region counts match expected totals (UK: 19, Europe: 22, UK & Europe: 7, International: 12)", () => {
+  const regionCounts = { UK: 0, Europe: 0, "UK & Europe": 0, International: 0 };
   for (const op of operators) {
     assert.ok(VALID_REGIONS.includes(op.region), `Invalid region "${op.region}" for ${op.id}`);
     regionCounts[op.region] += 1;
   }
-  assert.deepEqual(regionCounts, { UK: 19, Europe: 22, "UK & Europe": 7 });
+  assert.deepEqual(regionCounts, { UK: 19, Europe: 22, "UK & Europe": 7, International: 12 });
 });
 
 test("every operator has exact 11 required keys with no missing or extra keys", () => {
@@ -87,14 +87,14 @@ test("all string fields are non-empty trimmed strings, id matches /^[a-z0-9-]+$/
   }
 });
 
-test("id, name, and claimUrl are each unique across all 48 operators", () => {
+test("id, name, and claimUrl are each unique across all 60 operators", () => {
   const ids = new Set(operators.map((op) => op.id));
   const names = new Set(operators.map((op) => op.name));
   const urls = new Set(operators.map((op) => op.claimUrl));
 
-  assert.equal(ids.size, 48, "Duplicate operator id detected");
-  assert.equal(names.size, 48, "Duplicate operator name detected");
-  assert.equal(urls.size, 48, "Duplicate operator claimUrl detected");
+  assert.equal(ids.size, 60, "Duplicate operator id detected");
+  assert.equal(names.size, 60, "Duplicate operator name detected");
+  assert.equal(urls.size, 60, "Duplicate operator claimUrl detected");
 });
 
 test("every claimUrl is a valid https:// URL with a non-empty hostname", () => {

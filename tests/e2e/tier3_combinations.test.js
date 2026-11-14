@@ -20,24 +20,24 @@ describe("Tier 3: Cross-Feature Combinations (Pairwise Coverage)", () => {
       await page.setInputValue("#search-input", "Eurostar");
       assert.equal(await page.count(".operator-card"), 1);
       assert.equal(await page.text(".operator-card h3"), "Eurostar");
-      assert.equal(await page.text("#results-count"), "Showing 1 of 48 operators");
+      assert.equal(await page.text("#results-count"), "Showing 1 of 60 operators");
     });
   });
 
-  it("C2 Mode (flight) + Delay (180m) + Flight Distance (long) + Eligible Only shows 18 eligible flights and £520 / €600", async () => {
+  it("C2 Mode (flight) + Delay (180m) + Flight Distance (long) + Eligible Only shows 30 eligible flights and £520 / €600", async () => {
     await withTestContext(browser, async ({ page }) => {
       await page.click("#tab-flight");
       await page.click('.preset-btn[data-minutes="180"]');
       await page.selectOption("#flight-distance-select", "long");
       await page.setCheckbox("#eligible-only-toggle", true);
 
-      assert.equal(await page.count(".operator-card"), 18);
-      assert.equal(await page.count(".operator-card.is-eligible"), 18);
+      assert.equal(await page.count(".operator-card"), 30);
+      assert.equal(await page.count(".operator-card.is-eligible"), 30);
       assert.ok((await page.text("#eligibility-summary")).includes("£520 / €600"));
     });
   });
 
-  it("C3 Mode (bus) + Delay (30m vs 60m vs 120m) + Eligible Only -> 0 (#empty-state), 4, 10, then Reset restores 48", async () => {
+  it("C3 Mode (bus) + Delay (30m vs 60m vs 120m) + Eligible Only -> 0 (#empty-state), 4, 10, then Reset restores 60", async () => {
     await withTestContext(browser, async ({ page }) => {
       await page.click("#tab-bus");
       await page.click('.preset-btn[data-minutes="30"]');
@@ -57,7 +57,7 @@ describe("Tier 3: Cross-Feature Combinations (Pairwise Coverage)", () => {
       assert.equal(await page.isHidden("#empty-state"), false);
       await page.click("#reset-filters-btn");
       assert.equal(await page.isHidden("#empty-state"), true);
-      assert.equal(await page.count(".operator-card"), 48);
+      assert.equal(await page.count(".operator-card"), 60);
     });
   });
 
@@ -89,7 +89,7 @@ describe("Tier 3: Cross-Feature Combinations (Pairwise Coverage)", () => {
     });
   });
 
-  it("C6 Table View + Search (no match) + Reset Filters preserves Table View with 48 rows", async () => {
+  it("C6 Table View + Search (no match) + Reset Filters preserves Table View with 60 rows", async () => {
     await withTestContext(browser, async ({ page }) => {
       await page.click("#view-table-btn");
       await page.setInputValue("#search-input", "nonexistent-operator-999");
@@ -99,11 +99,11 @@ describe("Tier 3: Cross-Feature Combinations (Pairwise Coverage)", () => {
       await page.click("#reset-filters-btn");
       assert.equal(await page.isHidden("#empty-state"), true);
       assert.equal(await page.isHidden("#operators-table-wrap"), false);
-      assert.equal(await page.count("#operators-table-body tr"), 48);
+      assert.equal(await page.count("#operators-table-body tr"), 60);
     });
   });
 
-  it("C7 Delay (15m) + Eligible Only (true) + Clear Delay unchecks toggle, hides summary, restores 48 cards", async () => {
+  it("C7 Delay (15m) + Eligible Only (true) + Clear Delay unchecks toggle, hides summary, restores 60 cards", async () => {
     await withTestContext(browser, async ({ page }) => {
       await page.click('.preset-btn[data-minutes="15"]');
       await page.setCheckbox("#eligible-only-toggle", true);
@@ -112,7 +112,7 @@ describe("Tier 3: Cross-Feature Combinations (Pairwise Coverage)", () => {
       await page.click("#clear-delay-btn");
       assert.equal(await page.evaluate('document.querySelector("#eligible-only-toggle").checked'), false);
       assert.equal(await page.isHidden("#eligibility-summary"), true);
-      assert.equal(await page.count(".operator-card"), 48);
+      assert.equal(await page.count(".operator-card"), 60);
       assert.equal(await page.count(".operator-card.is-eligible"), 0);
     });
   });

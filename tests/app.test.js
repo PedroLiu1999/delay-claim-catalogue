@@ -315,11 +315,11 @@ test("getFilteredOperators filters by mode, region (including UK & Europe substr
 
   // Mode filtering
   app.state.mode = "all";
-  assert.equal(app.getFilteredOperators().length, 48);
+  assert.equal(app.getFilteredOperators().length, 60);
   app.state.mode = "train";
   assert.equal(app.getFilteredOperators().length, 20);
   app.state.mode = "flight";
-  assert.equal(app.getFilteredOperators().length, 18);
+  assert.equal(app.getFilteredOperators().length, 30);
   app.state.mode = "bus";
   assert.equal(app.getFilteredOperators().length, 10);
 
@@ -346,11 +346,11 @@ test("getFilteredOperators filters by mode, region (including UK & Europe substr
   app.state.search = "";
   app.state.eligibleOnly = true;
   app.state.delayMinutes = null;
-  assert.equal(app.getFilteredOperators().length, 48);
+  assert.equal(app.getFilteredOperators().length, 60);
 
   app.state.delayMinutes = 15;
   const eligible15 = app.getFilteredOperators();
-  assert.ok(eligible15.length > 0 && eligible15.length < 48);
+  assert.ok(eligible15.length > 0 && eligible15.length < 60);
   assert.ok(eligible15.every((op) => op.thresholdMinutes <= 15));
 
   // Sorting: threshold ascending with name tie-break
@@ -393,13 +393,13 @@ test("updateCounts populates mode counts and header stats", () => {
   resetApp();
   app.updateCounts();
 
-  assert.equal(app.elements.counts.all.textContent, "48");
+  assert.equal(app.elements.counts.all.textContent, "60");
   assert.equal(app.elements.counts.train.textContent, "20");
-  assert.equal(app.elements.counts.flight.textContent, "18");
+  assert.equal(app.elements.counts.flight.textContent, "30");
   assert.equal(app.elements.counts.bus.textContent, "10");
   assert.equal(
     app.elements.headerStats.textContent,
-    "48 verified operators · 20 train · 18 flight · 10 bus & coach"
+    "60 verified operators · 20 train · 30 flight · 10 bus & coach"
   );
 });
 
@@ -451,7 +451,7 @@ test("renderCards, renderTable, and render output expected markup and toggle vie
 
   // Cards view without delay
   app.render();
-  assert.equal(app.elements.resultsCount.textContent, "Showing 48 of 48 operators");
+  assert.equal(app.elements.resultsCount.textContent, "Showing 60 of 60 operators");
   assert.equal(app.elements.emptyState.hidden, true);
   assert.equal(app.elements.grid.hidden, false);
   assert.equal(app.elements.tableWrap.hidden, true);
@@ -482,7 +482,7 @@ test("renderCards, renderTable, and render output expected markup and toggle vie
   // Empty state
   app.state.search = "nonexistent-operator-xyz";
   app.render();
-  assert.equal(app.elements.resultsCount.textContent, "Showing 0 of 48 operators");
+  assert.equal(app.elements.resultsCount.textContent, "Showing 0 of 60 operators");
   assert.equal(app.elements.emptyState.hidden, false);
   assert.equal(app.elements.grid.hidden, true);
   assert.equal(app.elements.tableWrap.hidden, true);
@@ -517,7 +517,7 @@ test("bindEvents handles all user interactions and reset preserves view and flig
   assert.equal(env.modeTabs[1].getAttribute("aria-selected"), "true");
   assert.equal(env.modeTabs[0].classList.contains("active"), false);
   assert.equal(env.modeTabs[0].getAttribute("aria-selected"), "false");
-  assert.equal(app.elements.resultsCount.textContent, "Showing 20 of 48 operators");
+  assert.equal(app.elements.resultsCount.textContent, "Showing 20 of 60 operators");
 
   // View toggle -> table
   await env.viewBtns[1].dispatchEvent({ type: "click" });
@@ -635,9 +635,9 @@ test("init() loads operators on success and displays error state on HTTP or netw
       };
     };
     await app.init();
-    assert.equal(app.state.operators.length, 48);
-    assert.equal(app.elements.counts.all.textContent, "48");
-    assert.equal(app.elements.resultsCount.textContent, "Showing 48 of 48 operators");
+    assert.equal(app.state.operators.length, 60);
+    assert.equal(app.elements.counts.all.textContent, "60");
+    assert.equal(app.elements.resultsCount.textContent, "Showing 60 of 60 operators");
 
     // HTTP non-OK error path
     resetApp([]);

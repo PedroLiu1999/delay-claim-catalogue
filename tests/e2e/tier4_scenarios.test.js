@@ -81,12 +81,12 @@ describe("Tier 4: Real-World Application Scenarios", () => {
       await page.setCheckbox("#eligible-only-toggle", true);
 
       assert.equal(await page.isHidden("#empty-state"), false);
-      assert.equal(await page.text("#results-count"), "Showing 0 of 48 operators");
+      assert.equal(await page.text("#results-count"), "Showing 0 of 60 operators");
       assert.ok((await page.text("#eligibility-summary")).includes("under 15 minutes"));
 
       await page.click("#reset-filters-btn");
       assert.equal(await page.isHidden("#empty-state"), true);
-      assert.equal(await page.count(".operator-card"), 48);
+      assert.equal(await page.count(".operator-card"), 60);
       assert.equal(await page.isHidden("#eligibility-summary"), true);
       assert.deepEqual(page.exceptions, []);
     });
