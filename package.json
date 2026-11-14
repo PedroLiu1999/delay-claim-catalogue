@@ -1,0 +1,13 @@
+{
+  "name": "delay-claim-catalogue",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Searchable directory of official delay compensation claim portals for UK and European train, flight, and bus operators, with a built-in delay eligibility and payout estimator.",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:e2e": "node --test tests/e2e/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -520,6 +520,7 @@ a:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 13px;
+  min-width: 0;
   box-shadow: var(--shadow-sm);
   transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
 }
@@ -607,6 +608,7 @@ a:focus-visible {
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.28;
+  overflow-wrap: anywhere;
 }
 
 .scheme-row {
@@ -616,6 +618,7 @@ a:focus-visible {
   gap: 8px;
   margin-top: 4px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .scheme-text {
@@ -623,12 +626,16 @@ a:focus-visible {
   font-size: 0.78rem;
   font-family: var(--font-mono);
   color: var(--ink-soft);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .domain-pill {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--ink-muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .card-facts {
@@ -647,6 +654,7 @@ a:focus-visible {
   gap: 10px;
   font-size: 0.84rem;
   align-items: baseline;
+  min-width: 0;
 }
 
 .fact-label {
@@ -661,6 +669,8 @@ a:focus-visible {
   margin: 0;
   color: var(--ink);
   font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .card-actions {
@@ -768,6 +778,8 @@ a:focus-visible {
   position: fixed;
   bottom: 20px;
   right: 20px;
+  max-width: calc(100vw - 40px);
+  overflow-wrap: anywhere;
   background: var(--ink);
   color: #ffffff;
   padding: 10px 16px;

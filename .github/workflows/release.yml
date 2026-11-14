@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract tag annotation for release notes
+        shell: bash
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          OBJ_TYPE="$(git cat-file -t "refs/tags/${TAG_NAME}")"
+          if [ "$OBJ_TYPE" = "tag" ]; then
+            NOTES="$(git for-each-ref --format='%(contents)' "refs/tags/${TAG_NAME}")"
+          else
+            echo "::warning::Tag ${TAG_NAME} is a lightweight tag; falling back to commit message."
+            NOTES="$(git log -1 --pretty=%B "refs/tags/${TAG_NAME}")"
+          fi
+          if [ -z "$(printf '%s' "$NOTES" | tr -d '[:space:]')" ]; then
+            NOTES="Release ${TAG_NAME}"
+          fi
+          printf '%s\n' "$NOTES" > release_notes.md
+
+      - name: Create GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG_NAME="${GITHUB_REF_NAME}"
+          PRERELEASE_ARGS=()
+          if [[ "${TAG_NAME%%+*}" == *-* ]]; then
+            PRERELEASE_ARGS+=(--prerelease)
+          fi
+          gh release create "$TAG_NAME" \
+            --title "$TAG_NAME" \
+            --notes-file release_notes.md \
+            "${PRERELEASE_ARGS[@]}"

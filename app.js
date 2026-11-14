@@ -23,34 +23,43 @@ const FLIGHT_PAYOUTS = {
   long: "£520 / €600",
 };
 
-const elements = {
-  headerStats: document.getElementById("header-stats"),
-  grid: document.getElementById("operators-grid"),
-  tableWrap: document.getElementById("operators-table-wrap"),
-  tableBody: document.getElementById("operators-table-body"),
-  emptyState: document.getElementById("empty-state"),
-  resultsCount: document.getElementById("results-count"),
-  searchInput: document.getElementById("search-input"),
-  regionFilter: document.getElementById("region-filter"),
-  sortSelect: document.getElementById("sort-select"),
-  delayInput: document.getElementById("delay-minutes-input"),
-  fareInput: document.getElementById("ticket-fare-input"),
-  flightDistanceSelect: document.getElementById("flight-distance-select"),
-  eligibleOnlyToggle: document.getElementById("eligible-only-toggle"),
-  eligibilitySummary: document.getElementById("eligibility-summary"),
-  clearDelayBtn: document.getElementById("clear-delay-btn"),
-  resetFiltersBtn: document.getElementById("reset-filters-btn"),
-  toast: document.getElementById("toast"),
-  modeTabs: document.querySelectorAll(".mode-tab"),
-  viewBtns: document.querySelectorAll(".view-btn"),
-  presetBtns: document.querySelectorAll(".preset-btn[data-minutes]"),
-  counts: {
-    all: document.getElementById("count-all"),
-    train: document.getElementById("count-train"),
-    flight: document.getElementById("count-flight"),
-    bus: document.getElementById("count-bus"),
-  },
-};
+const elements = {};
+
+function refreshElements() {
+  if (typeof document === "undefined") {
+    return elements;
+  }
+  return Object.assign(elements, {
+    headerStats: document.getElementById("header-stats"),
+    grid: document.getElementById("operators-grid"),
+    tableWrap: document.getElementById("operators-table-wrap"),
+    tableBody: document.getElementById("operators-table-body"),
+    emptyState: document.getElementById("empty-state"),
+    resultsCount: document.getElementById("results-count"),
+    searchInput: document.getElementById("search-input"),
+    regionFilter: document.getElementById("region-filter"),
+    sortSelect: document.getElementById("sort-select"),
+    delayInput: document.getElementById("delay-minutes-input"),
+    fareInput: document.getElementById("ticket-fare-input"),
+    flightDistanceSelect: document.getElementById("flight-distance-select"),
+    eligibleOnlyToggle: document.getElementById("eligible-only-toggle"),
+    eligibilitySummary: document.getElementById("eligibility-summary"),
+    clearDelayBtn: document.getElementById("clear-delay-btn"),
+    resetFiltersBtn: document.getElementById("reset-filters-btn"),
+    toast: document.getElementById("toast"),
+    modeTabs: document.querySelectorAll(".mode-tab"),
+    viewBtns: document.querySelectorAll(".view-btn"),
+    presetBtns: document.querySelectorAll(".preset-btn[data-minutes]"),
+    counts: {
+      all: document.getElementById("count-all"),
+      train: document.getElementById("count-train"),
+      flight: document.getElementById("count-flight"),
+      bus: document.getElementById("count-bus"),
+    },
+  });
+}
+
+refreshElements();
 
 let toastTimer = null;
 
@@ -67,6 +76,22 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+function escapeAttr(text) {
+  return escapeHtml(text).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function sanitizeClaimUrl(url) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+      return parsed.href;
+    }
+    return "#";
+  } catch {
+    return "#";
+  }
 }
 
 function getHostname(url) {
@@ -100,6 +125,7 @@ function updateCounts() {
 }
 
 function formatMoney(amount) {
+  if (!Number.isFinite(amount)) return "0";
   return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
 }
 
@@ -107,7 +133,7 @@ function buildPayoutEstimate(mins) {
   const parts = [];
   const fare = state.ticketFare;
 
-  if (fare !== null && !Number.isNaN(fare) && fare > 0) {
+  if (fare !== null && Number.isFinite(fare) && fare > 0) {
     if (mins >= 120) {
       parts.push(`EU rail 50%: ${formatMoney(fare * 0.5)} · UK rail 100%: ${formatMoney(fare)}`);
     } else if (mins >= 60) {
@@ -120,7 +146,8 @@ function buildPayoutEstimate(mins) {
   }
 
   if (mins >= 180) {
-    parts.push(`UK261 / EU261 flight (${state.flightDistance}): ${FLIGHT_PAYOUTS[state.flightDistance]}`);
+    const payout = FLIGHT_PAYOUTS[state.flightDistance] || FLIGHT_PAYOUTS.short;
+    parts.push(`UK261 / EU261 flight (${state.flightDistance}): ${payout}`);
   }
 
   return parts.length > 0 ? parts.join("  |  ") : "";
@@ -223,12 +250,13 @@ function renderCards(filtered) {
           : "";
 
       const domain = getHostname(op.claimUrl);
+      const safeUrl = sanitizeClaimUrl(op.claimUrl);
 
       return `
-        <article class="${cardClass}" data-id="${escapeHtml(op.id)}">
+        <article class="${cardClass}" data-id="${escapeAttr(op.id)}">
           <div class="card-header">
             <div class="badges-left">
-              <span class="mode-badge mode-${escapeHtml(op.mode)}">${escapeHtml(MODE_LABELS[op.mode] || op.mode)}</span>
+              <span class="mode-badge mode-${escapeAttr(op.mode)}">${escapeHtml(MODE_LABELS[op.mode] || op.mode)}</span>
               <span class="country-tag">${escapeHtml(op.country)}</span>
             </div>
             ${eligibleBadge}
@@ -260,7 +288,7 @@ function renderCards(filtered) {
           <div class="card-actions">
             <a
               class="btn btn-primary"
-              href="${escapeHtml(op.claimUrl)}"
+              href="${escapeAttr(safeUrl)}"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -269,8 +297,8 @@ function renderCards(filtered) {
             <button
               type="button"
               class="btn btn-ghost copy-link-btn"
-              data-url="${escapeHtml(op.claimUrl)}"
-              data-name="${escapeHtml(op.name)}"
+              data-url="${escapeAttr(safeUrl)}"
+              data-name="${escapeAttr(op.name)}"
               title="Copy official claim URL"
             >
               Copy URL
@@ -293,13 +321,15 @@ function renderTable(filtered) {
           ? "is-ineligible"
           : "";
 
+      const safeUrl = sanitizeClaimUrl(op.claimUrl);
+
       return `
         <tr class="${rowClass}">
           <td>
             <div class="table-op-name">${escapeHtml(op.name)}</div>
             <div class="table-op-scheme">${escapeHtml(op.scheme)}</div>
           </td>
-          <td><span class="mode-badge mode-${escapeHtml(op.mode)}">${escapeHtml(MODE_LABELS[op.mode] || op.mode)}</span></td>
+          <td><span class="mode-badge mode-${escapeAttr(op.mode)}">${escapeHtml(MODE_LABELS[op.mode] || op.mode)}</span></td>
           <td>${escapeHtml(op.country)}</td>
           <td>${escapeHtml(op.thresholdLabel)}</td>
           <td>${escapeHtml(op.compensationSummary)}</td>
@@ -307,7 +337,7 @@ function renderTable(filtered) {
           <td>
             <a
               class="btn btn-primary btn-sm"
-              href="${escapeHtml(op.claimUrl)}"
+              href="${escapeAttr(safeUrl)}"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -351,20 +381,46 @@ function render() {
 function syncPresetButtons() {
   elements.presetBtns.forEach((btn) => {
     const mins = Number(btn.dataset.minutes);
-    btn.classList.toggle("active", state.delayMinutes === mins);
+    const isActive = state.delayMinutes === mins;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", String(isActive));
   });
 }
 
 function bindEvents() {
-  elements.modeTabs.forEach((tab) => {
+  const modeTabs = Array.from(elements.modeTabs);
+  const activateModeTab = (tab) => {
+    state.mode = tab.dataset.mode;
+    modeTabs.forEach((t) => {
+      const isActive = t === tab;
+      t.classList.toggle("active", isActive);
+      t.setAttribute("aria-selected", String(isActive));
+    });
+    render();
+  };
+
+  modeTabs.forEach((tab, index) => {
     tab.addEventListener("click", () => {
-      state.mode = tab.dataset.mode;
-      elements.modeTabs.forEach((t) => {
-        const isActive = t === tab;
-        t.classList.toggle("active", isActive);
-        t.setAttribute("aria-selected", String(isActive));
-      });
-      render();
+      activateModeTab(tab);
+    });
+
+    tab.addEventListener("keydown", (e) => {
+      let targetIndex = null;
+      if (e.key === "ArrowRight") {
+        targetIndex = (index + 1) % modeTabs.length;
+      } else if (e.key === "ArrowLeft") {
+        targetIndex = (index - 1 + modeTabs.length) % modeTabs.length;
+      } else if (e.key === "Home") {
+        targetIndex = 0;
+      } else if (e.key === "End") {
+        targetIndex = modeTabs.length - 1;
+      }
+      if (targetIndex !== null) {
+        if (typeof e.preventDefault === "function") e.preventDefault();
+        const targetTab = modeTabs[targetIndex];
+        if (typeof targetTab.focus === "function") targetTab.focus();
+        activateModeTab(targetTab);
+      }
     });
   });
 
@@ -397,14 +453,24 @@ function bindEvents() {
 
   elements.delayInput.addEventListener("input", (e) => {
     const raw = e.target.value.trim();
-    state.delayMinutes = raw === "" ? null : Math.max(0, Number(raw));
+    if (raw === "") {
+      state.delayMinutes = null;
+    } else {
+      const num = Number(raw);
+      state.delayMinutes = Number.isFinite(num) ? Math.max(0, num) : null;
+    }
     syncPresetButtons();
     render();
   });
 
   elements.fareInput.addEventListener("input", (e) => {
     const raw = e.target.value.trim();
-    state.ticketFare = raw === "" ? null : Math.max(0, Number(raw));
+    if (raw === "") {
+      state.ticketFare = null;
+    } else {
+      const num = Number(raw);
+      state.ticketFare = Number.isFinite(num) ? Math.max(0, num) : null;
+    }
     render();
   });
 
@@ -480,17 +546,57 @@ function bindEvents() {
 }
 
 async function init() {
+  refreshElements();
   bindEvents();
   try {
     const res = await fetch("data/operators.json");
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    state.operators = await res.json();
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error("Invalid operator catalogue payload");
+    state.operators = data;
     updateCounts();
     render();
   } catch (err) {
+    elements.grid.hidden = false;
+    elements.tableWrap.hidden = true;
+    elements.emptyState.hidden = true;
+    elements.headerStats.textContent = "Unable to load verified operator directory.";
     elements.resultsCount.textContent = "Failed to load operators dataset.";
     elements.grid.innerHTML = `<div class="empty-state"><h3>Could not load operator data</h3><p>${escapeHtml(err.message)}</p></div>`;
   }
 }
 
-init();
+if (
+  typeof window !== "undefined" &&
+  typeof document !== "undefined" &&
+  !globalThis.__DELAY_CLAIM_NO_AUTO_INIT__
+) {
+  init();
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    state,
+    MODE_LABELS,
+    FLIGHT_PAYOUTS,
+    elements,
+    refreshElements,
+    showToast,
+    escapeHtml,
+    escapeAttr,
+    sanitizeClaimUrl,
+    getHostname,
+    isOperatorEligible,
+    updateCounts,
+    formatMoney,
+    buildPayoutEstimate,
+    updateEligibilitySummary,
+    getFilteredOperators,
+    renderCards,
+    renderTable,
+    render,
+    syncPresetButtons,
+    bindEvents,
+    init,
+  };
+}
