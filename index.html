@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UK &amp; Europe Delay Claim Catalogue — Train, Flight &amp; Bus</title>
+  <meta
+    name="description"
+    content="Searchable directory of official delay compensation claim portals for UK and European train, flight, and bus operators, with a quick delay eligibility and payout estimator."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="header-copy">
+        <p class="eyebrow">UK &amp; Europe Passenger Rights Directory</p>
+        <h1>Delay Claim Catalogue</h1>
+        <p class="subtitle">
+          Direct links to official operator compensation portals for delayed trains, flights, and coaches—without third-party claim fees.
+        </p>
+        <p class="header-stats" id="header-stats" aria-live="polite">
+          Loading verified operator directory...
+        </p>
+      </div>
+      <div class="header-actions">
+        <a
+          id="json-dataset-link"
+          class="btn btn-secondary"
+          href="data/operators.json"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View JSON Dataset
+        </a>
+        <a
+          id="json-download-link"
+          class="btn btn-primary"
+          href="data/operators.json"
+          download="operators.json"
+        >
+          Download JSON
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <section class="eligibility-panel" aria-labelledby="eligibility-heading">
+      <div class="eligibility-top">
+        <div>
+          <h2 id="eligibility-heading">Delay Eligibility &amp; Payout Helper</h2>
+          <p class="panel-hint">
+            Enter your delay duration to highlight eligible operators, see applicable statutory rules, and estimate your compensation.
+          </p>
+        </div>
+        <label class="toggle-wrap" for="eligible-only-toggle">
+          <input type="checkbox" id="eligible-only-toggle" />
+          <span>Show eligible only</span>
+        </label>
+      </div>
+
+      <div class="eligibility-controls">
+        <div class="field-group">
+          <label for="delay-minutes-input">Delay duration</label>
+          <div class="input-with-unit">
+            <input
+              type="number"
+              id="delay-minutes-input"
+              min="0"
+              max="2880"
+              step="5"
+              placeholder="e.g. 45"
+              inputmode="numeric"
+            />
+            <span class="unit-label">mins</span>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="ticket-fare-input">Ticket fare (optional, rail/bus)</label>
+          <div class="input-with-unit">
+            <span class="unit-label unit-left">£/€</span>
+            <input
+              type="number"
+              id="ticket-fare-input"
+              min="0"
+              max="10000"
+              step="1"
+              placeholder="e.g. 60"
+              inputmode="decimal"
+            />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="flight-distance-select">Flight distance (for 180m+)</label>
+          <select id="flight-distance-select" class="compact-select">
+            <option value="short">Up to 1,500 km (£220 / €250)</option>
+            <option value="medium">1,500–3,500 km (£350 / €400)</option>
+            <option value="long">Over 3,500 km (£520 / €600)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="preset-row">
+        <div class="preset-group" role="group" aria-label="Common delay durations">
+          <span class="preset-label">Presets:</span>
+          <button type="button" class="preset-btn" data-minutes="15">15m</button>
+          <button type="button" class="preset-btn" data-minutes="30">30m</button>
+          <button type="button" class="preset-btn" data-minutes="60">60m</button>
+          <button type="button" class="preset-btn" data-minutes="120">120m</button>
+          <button type="button" class="preset-btn" data-minutes="180">180m+</button>
+          <button type="button" class="preset-btn preset-clear" id="clear-delay-btn">Clear</button>
+        </div>
+      </div>
+
+      <div id="eligibility-summary" class="eligibility-summary" aria-live="polite" hidden></div>
+    </section>
+
+    <section class="controls-bar" aria-label="Filter, search, and view options">
+      <div class="controls-top-row">
+        <div class="mode-tabs" role="tablist" aria-label="Transport mode">
+          <button type="button" class="mode-tab active" data-mode="all" role="tab" aria-selected="true" id="tab-all">
+            All <span class="tab-count" id="count-all">0</span>
+          </button>
+          <button type="button" class="mode-tab" data-mode="train" role="tab" aria-selected="false" id="tab-train">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-4 0-8 .5-8 4v9.5A3.5 3.5 0 0 0 7.5 19L6 20.5v.5h2l2-2h4l2 2h2v-.5L16.5 19a3.5 3.5 0 0 0 3.5-3.5V6c0-3.5-4-4-8-4ZM7.5 17A1.5 1.5 0 1 1 9 15.5 1.5 1.5 0 0 1 7.5 17Zm3.5-7H6V6h5Zm2 0V6h5v4Zm3.5 7a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5Z" fill="currentColor"/></svg>
+            Train <span class="tab-count" id="count-train">0</span>
+          </button>
+          <button type="button" class="mode-tab" data-mode="flight" role="tab" aria-selected="false" id="tab-flight">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5Z" fill="currentColor"/></svg>
+            Flight <span class="tab-count" id="count-flight">0</span>
+          </button>
+          <button type="button" class="mode-tab" data-mode="bus" role="tab" aria-selected="false" id="tab-bus">
+            <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16c0 .88.39 1.67 1 2.22V20a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1h8v1a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4S4 2.5 4 6v10Zm3.5 1A1.5 1.5 0 1 1 9 15.5 1.5 1.5 0 0 1 7.5 17Zm9 0a1.5 1.5 0 1 1 1.5-1.5 1.5 1.5 0 0 1-1.5 1.5ZM18 11H6V6h12v5Z" fill="currentColor"/></svg>
+            Bus &amp; Coach <span class="tab-count" id="count-bus">0</span>
+          </button>
+        </div>
+
+        <div class="view-toggle" role="group" aria-label="Layout view">
+          <button type="button" class="view-btn active" id="view-cards-btn" data-view="cards" aria-pressed="true">
+            Cards
+          </button>
+          <button type="button" class="view-btn" id="view-table-btn" data-view="table" aria-pressed="false">
+            Table
+          </button>
+        </div>
+      </div>
+
+      <div class="search-sort-row">
+        <div class="search-wrap">
+          <label for="search-input" class="sr-only">Search operators</label>
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Search operator, country, or scheme (e.g. LNER, EU261, Germany)..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="select-wrap">
+          <label for="region-filter" class="sr-only">Filter by region</label>
+          <select id="region-filter">
+            <option value="all">All Regions</option>
+            <option value="UK">UK</option>
+            <option value="Europe">Europe</option>
+            <option value="UK & Europe">UK &amp; Europe</option>
+          </select>
+        </div>
+
+        <div class="select-wrap">
+          <label for="sort-select" class="sr-only">Sort operators</label>
+          <select id="sort-select">
+            <option value="name">Sort: Name (A–Z)</option>
+            <option value="threshold">Sort: Lowest Threshold</option>
+            <option value="mode">Sort: Transport Mode</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <div class="results-meta">
+      <p id="results-count" aria-live="polite">Loading operators...</p>
+    </div>
+
+    <section id="operators-grid" class="operators-grid" aria-label="Operator delay claim directory">
+      <!-- Cards rendered by app.js -->
+    </section>
+
+    <section id="operators-table-wrap" class="table-wrap" aria-label="Operator delay claim table" hidden>
+      <table class="operators-table">
+        <thead>
+          <tr>
+            <th>Operator</th>
+            <th>Mode</th>
+            <th>Country / Region</th>
+            <th>Threshold</th>
+            <th>Compensation</th>
+            <th>Deadline</th>
+            <th>Claim Portal</th>
+          </tr>
+        </thead>
+        <tbody id="operators-table-body"></tbody>
+      </table>
+    </section>
+
+    <div id="empty-state" class="empty-state" hidden>
+      <h3>No matching operators found</h3>
+      <p>Try clearing your search query, changing the region filter, or adjusting the delay duration.</p>
+      <button type="button" class="btn btn-secondary" id="reset-filters-btn">Reset all filters</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>
+        Always submit claims directly via the operator's official portal to avoid third-party commission fees. Rules shown are standard statutory/charter baselines and may vary by ticket type or extraordinary circumstances.
+      </p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
